@@ -37,60 +37,6 @@ class ChatterBotResponseTestCase(ChatBotTestCase):
         )
         self.assertIsNotNone(statement)
 
-    def test_get_initialization_functions(self):
-        """
-        Test that the initialization functions are returned.
-        """
-        functions = self.chatbot.get_initialization_functions()
-
-        self.assertIn('initialize_nltk_stopwords', functions)
-        self.assertIn('initialize_nltk_wordnet', functions)
-        self.assertIn('initialize_nltk_averaged_perceptron_tagger', functions)
-        self.assertIsLength(functions, 3)
-
-    def test_get_initialization_functions_synset_distance(self):
-        """
-        Test that the initialization functions are returned.
-        """
-        from chatterbot.comparisons import synset_distance
-
-        list(self.chatbot.search_algorithms.values())[0].compare_statements = synset_distance
-        functions = self.chatbot.get_initialization_functions()
-
-        self.assertIn('initialize_nltk_stopwords', functions)
-        self.assertIn('initialize_nltk_wordnet', functions)
-        self.assertIn('initialize_nltk_averaged_perceptron_tagger', functions)
-        self.assertIsLength(functions, 3)
-
-    def test_get_initialization_functions_sentiment_comparison(self):
-        """
-        Test that the initialization functions are returned.
-        """
-        from chatterbot.comparisons import sentiment_comparison
-
-        list(self.chatbot.search_algorithms.values())[0].compare_statements = sentiment_comparison
-        functions = self.chatbot.get_initialization_functions()
-
-        self.assertIn('initialize_nltk_stopwords', functions)
-        self.assertIn('initialize_nltk_wordnet', functions)
-        self.assertIn('initialize_nltk_vader_lexicon', functions)
-        self.assertIn('initialize_nltk_averaged_perceptron_tagger', functions)
-        self.assertIsLength(functions, 4)
-
-    def test_get_initialization_functions_jaccard_similarity(self):
-        """
-        Test that the initialization functions are returned.
-        """
-        from chatterbot.comparisons import jaccard_similarity
-
-        list(self.chatbot.search_algorithms.values())[0].compare_statements = jaccard_similarity
-        functions = self.chatbot.get_initialization_functions()
-
-        self.assertIn('initialize_nltk_wordnet', functions)
-        self.assertIn('initialize_nltk_stopwords', functions)
-        self.assertIn('initialize_nltk_averaged_perceptron_tagger', functions)
-        self.assertIsLength(functions, 3)
-
     def test_no_statements_known(self):
         """
         If there is no statements in the database, then the
@@ -362,14 +308,13 @@ class ChatterBotResponseTestCase(ChatBotTestCase):
         ])
 
         results = list(self.chatbot.storage.filter(
-            search_text=self.chatbot.storage.tagger.get_bigram_pair_string(
+            search_text=self.chatbot.storage.tagger.get_text_index_string(
                 'Example A for search.'
             )
         ))
 
+        self.assertEqual(len(results), 1)
         self.assertEqual('Example A for search.', results[0].text)
-        self.assertEqual('Example B for search.', results[1].text)
-        self.assertIsLength(results, 2)
 
 
 class TestAdapterA(LogicAdapter):

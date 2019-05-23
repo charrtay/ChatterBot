@@ -95,7 +95,7 @@ class SqlBenchmarkingTests(BenchmarkingMixin, ChatBotSQLTestCase):
         """
         self.chatbot.logic_adapters[0] = BestMatch(
             self.chatbot,
-            statement_comparison_function=comparisons.levenshtein_distance,
+            statement_comparison_function=comparisons.LevenshteinDistance,
             response_selection_method=response_selection.get_first_response
         )
 
@@ -104,13 +104,13 @@ class SqlBenchmarkingTests(BenchmarkingMixin, ChatBotSQLTestCase):
 
         self.assert_response_duration_is_less_than(1)
 
-    def test_synset_distance_comparisons(self):
+    def test_spacy_similarity_comparisons(self):
         """
-        Test the synset distance comparison algorithm.
+        Test the spacy similarity comparison algorithm.
         """
         self.chatbot.logic_adapters[0] = BestMatch(
             self.chatbot,
-            statement_comparison_function=comparisons.synset_distance,
+            statement_comparison_function=comparisons.SpacySimilarity,
             response_selection_method=response_selection.get_first_response
         )
 
@@ -155,7 +155,7 @@ class MongoBenchmarkingTests(BenchmarkingMixin, ChatBotMongoTestCase):
         """
         self.chatbot.logic_adapters[0] = BestMatch(
             self.chatbot,
-            statement_comparison_function=comparisons.levenshtein_distance,
+            statement_comparison_function=comparisons.LevenshteinDistance,
             response_selection_method=response_selection.get_first_response
         )
 
@@ -164,13 +164,13 @@ class MongoBenchmarkingTests(BenchmarkingMixin, ChatBotMongoTestCase):
 
         self.assert_response_duration_is_less_than(1)
 
-    def test_synset_distance_comparisons(self):
+    def test_spacy_similarity_comparisons(self):
         """
-        Test the synset distance comparison algorithm.
+        Test the spacy similarity comparison algorithm.
         """
         self.chatbot.logic_adapters[0] = BestMatch(
             self.chatbot,
-            statement_comparison_function=comparisons.synset_distance,
+            statement_comparison_function=comparisons.SpacySimilarity,
             response_selection_method=response_selection.get_first_response
         )
 

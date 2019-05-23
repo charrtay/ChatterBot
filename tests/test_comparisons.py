@@ -5,10 +5,17 @@ Test ChatterBot's statement comparison algorithms.
 from unittest import TestCase
 from chatterbot.conversation import Statement
 from chatterbot import comparisons
-from chatterbot import utils
+from chatterbot import languages
 
 
 class LevenshteinDistanceTestCase(TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.compare = comparisons.LevenshteinDistance(
+            language=languages.ENG
+        )
 
     def test_levenshtein_distance_statement_false(self):
         """
@@ -17,7 +24,7 @@ class LevenshteinDistanceTestCase(TestCase):
         statement = Statement(text='')
         other_statement = Statement(text='Hello')
 
-        value = comparisons.levenshtein_distance(statement, other_statement)
+        value = self.compare(statement, other_statement)
 
         self.assertEqual(value, 0)
 
@@ -28,7 +35,7 @@ class LevenshteinDistanceTestCase(TestCase):
         statement = Statement(text='Hello')
         other_statement = Statement(text='')
 
-        value = comparisons.levenshtein_distance(statement, other_statement)
+        value = self.compare(statement, other_statement)
 
         self.assertEqual(value, 0)
 
@@ -40,7 +47,7 @@ class LevenshteinDistanceTestCase(TestCase):
         statement = Statement(text=2)
         other_statement = Statement(text='Hello')
 
-        value = comparisons.levenshtein_distance(statement, other_statement)
+        value = self.compare(statement, other_statement)
 
         self.assertEqual(value, 0)
 
@@ -51,46 +58,30 @@ class LevenshteinDistanceTestCase(TestCase):
         statement = Statement(text='Hi HoW ArE yOu?')
         other_statement = Statement(text='hI hOw are YoU?')
 
-        value = comparisons.levenshtein_distance(statement, other_statement)
+        value = self.compare(statement, other_statement)
 
         self.assertEqual(value, 1)
 
 
-class SynsetDistanceTestCase(TestCase):
-
-    def test_exact_match_different_stopwords(self):
-        """
-        Test that stopwords are ignored.
-        """
-        statement = Statement(text='What is matter?')
-        other_statement = Statement(text='What is the matter?')
-
-        value = comparisons.synset_distance(statement, other_statement)
-
-        self.assertEqual(value, 1)
-
-    def test_exact_match_different_capitalization(self):
-        """
-        Test that text capitalization is ignored.
-        """
-        statement = Statement(text='Hi HoW ArE yOu?')
-        other_statement = Statement(text='hI hOw are YoU?')
-
-        value = comparisons.synset_distance(statement, other_statement)
-
-        self.assertEqual(value, 1)
-
-
-class SentimentComparisonTestCase(TestCase):
+class SpacySimilarityTests(TestCase):
 
     def setUp(self):
         super().setUp()
 
-        # Make sure the required NLTK data files are downloaded
-        for function in utils.get_initialization_functions(
-            comparisons, 'sentiment_comparison'
-        ).values():
-            function()
+        self.compare = comparisons.SpacySimilarity(
+            language=languages.ENG
+        )
+
+    def test_exact_match_different_stopwords(self):
+        """
+        Test sentences with different stopwords.
+        """
+        statement = Statement(text='What is matter?')
+        other_statement = Statement(text='What is the matter?')
+
+        value = self.compare(statement, other_statement)
+
+        self.assertAlmostEqual(value, 0.9, places=1)
 
     def test_exact_match_different_capitalization(self):
         """
@@ -99,13 +90,20 @@ class SentimentComparisonTestCase(TestCase):
         statement = Statement(text='Hi HoW ArE yOu?')
         other_statement = Statement(text='hI hOw are YoU?')
 
-        value = comparisons.sentiment_comparison(statement, other_statement)
+        value = self.compare(statement, other_statement)
 
-        self.assertEqual(value, 1)
+        self.assertAlmostEqual(value, 0.8, places=1)
 
 
 class JaccardSimilarityTestCase(TestCase):
 
+    def setUp(self):
+        super().setUp()
+
+        self.compare = comparisons.JaccardSimilarity(
+            language=languages.ENG
+        )
+
     def test_exact_match_different_capitalization(self):
         """
         Test that text capitalization is ignored.
@@ -113,6 +111,6 @@ class JaccardSimilarityTestCase(TestCase):
         statement = Statement(text='Hi HoW ArE yOu?')
         other_statement = Statement(text='hI hOw are YoU?')
 
-        value = comparisons.jaccard_similarity(statement, other_statement)
+        value = self.compare(statement, other_statement)
 
         self.assertEqual(value, 1)
