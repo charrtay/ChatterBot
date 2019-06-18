@@ -200,7 +200,7 @@ class ChatBot(object):
             text=result.text,
             in_response_to=input_statement.text,
             conversation=input_statement.conversation,
-            persona='bot:' + self.name
+            persona='bot' #+ self.name
         )
 
         response.confidence = result.confidence
@@ -234,6 +234,7 @@ class ChatBot(object):
         # Save the input statement
         return self.storage.create(**statement.serialize())
 
+    # NOTE: CHANGED TEXT TO BE SAVED
     def get_latest_response(self, conversation):
         """
         Returns the latest response in a conversation if it exists.
@@ -254,7 +255,7 @@ class ChatBot(object):
 
                 response_statements = list(self.storage.filter(
                     conversation=conversation,
-                    text=latest_statement.in_response_to,
+                    text=latest_statement.text,
                     order_by=['id']
                 ))
 
@@ -262,7 +263,7 @@ class ChatBot(object):
                     return response_statements[-1]
                 else:
                     return StatementObject(
-                        text=latest_statement.in_response_to,
+                        text=latest_statement.text,
                         conversation=conversation
                     )
             else:
