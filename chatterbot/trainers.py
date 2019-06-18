@@ -117,6 +117,59 @@ class ListTrainer(Trainer):
         self.chatbot.storage.create_many(statements_to_create)
 
 
+class PersonaListTrainer(Trainer):
+    """
+    Allows a chat bot to be trained using a list of strings
+    where the list represents a conversation.
+    The persona associated with each statement is also stored.
+    """
+
+    def train(self, conversation):
+        """
+        Train the chat bot based on the provided list of
+        statements that represents a single conversation.
+        """
+        previous_statement_text = None
+        previous_statement_search_text = ''
+
+        statements_to_create = []
+
+        for conversation_count, line in enumerate(conversation):
+
+            usr = line.split(",", 1)[0]
+            if usr == 'admin':
+                usr = 'CX'
+            else:
+                usr = 'bot'
+            text = line.split(",", 1)[1]
+
+            if self.show_training_progress:
+                utils.print_progress_bar(
+                    'List Trainer',
+                    conversation_count + 1, len(conversation)
+                )
+
+            statement_search_text = self.chatbot.storage.tagger.get_text_index_string(text)
+
+            statement = self.get_preprocessed_statement(
+                Statement(
+                    text=text,
+                    search_text=statement_search_text,
+                    in_response_to=previous_statement_text,
+                    search_in_response_to=previous_statement_search_text,
+                    conversation='training',
+                    persona=usr
+                )
+            )
+
+            previous_statement_text = statement.text
+            previous_statement_search_text = statement_search_text
+
+            statements_to_create.append(statement)
+
+        self.chatbot.storage.create_many(statements_to_create)
+
+
 class ChatterBotCorpusTrainer(Trainer):
     """
     Allows the chat bot to be trained using data from the
